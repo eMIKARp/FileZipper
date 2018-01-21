@@ -23,9 +23,21 @@ public class Main extends JFrame
                 super.addElement(((File)obj).getName());
             }
         
-        public Object get(int index) {
+        @Override
+        public Object get(int index) 
+        {
         return lista.get(index);
         }
+        
+        @Override
+        public Object remove(int index) 
+        {
+            
+        lista.remove(index);
+        return super.remove(index);  
+            
+        }
+        
 
         ArrayList lista = new ArrayList();
             
@@ -115,7 +127,7 @@ public class Main extends JFrame
             if (e.getActionCommand().equals("Dodaj"))
                 dodajWpisyDoArchiwum();
             else if (e.getActionCommand().equals("Usuń"))
-                System.out.println("Usuwanie");
+                usunWpisyZArchiwum();
             else if (e.getActionCommand().equals("Zip"))
                 System.out.println("Archiwizacja");
         }
@@ -137,6 +149,16 @@ public class Main extends JFrame
                         modelListy.addElement(filesToArchive[i]);
             }
             
+    }
+    
+    private void usunWpisyZArchiwum()
+    {
+        int[] tmp = listaPlikow.getSelectedIndices();
+        
+        for (int i = 0; i < tmp.length; i++)
+        {
+            modelListy.remove(tmp[i]-i);
+        }
     }
     
     private boolean czyWpisSiePowtarza(String testowanyWpis)
