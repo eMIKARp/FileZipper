@@ -3,6 +3,8 @@ package filezipper;
     import javax.swing.*;
     import java.awt.*;
     import java.awt.event.*;
+import java.io.File;
+import java.util.ArrayList;
 
 
 public class Main extends JFrame 
@@ -11,10 +13,29 @@ public class Main extends JFrame
     private JButton bRemove;
     private JButton bZip;
     
-    private JList listaPlikow = new JList(new String[] {"Emil","Paulina","Karolina","Jagoda","Janusz"});
-    
-    private JMenuBar mainMenuBar = new JMenuBar();
+    private DefaultListModel modelListy = new DefaultListModel()
+        {
+        
+        @Override
+        public void addElement(Object obj) 
+            {
+                lista.add(obj);
+                super.addElement(((File)obj).getName());
+            }
+        
+        public Object get(int index) {
+        return lista.get(index);
+        }
 
+        ArrayList lista = new ArrayList();
+            
+        };
+    
+    private JList listaPlikow = new JList(modelListy);
+    private JScrollPane listaPrzewijana = new JScrollPane(listaPlikow);
+    private JMenuBar mainMenuBar = new JMenuBar();
+    private JFileChooser fileChooser = new JFileChooser();
+    
     
     public Main()
     {
@@ -44,7 +65,7 @@ public class Main extends JFrame
         
             layout.setHorizontalGroup(
                     layout.createSequentialGroup()
-                    .addComponent(listaPlikow,100,150, Short.MAX_VALUE)
+                    .addComponent(listaPrzewijana,100,150, Short.MAX_VALUE)
                     .addContainerGap(10, Short.MAX_VALUE)
                     .addGroup(
                     layout.createParallelGroup()
@@ -56,7 +77,7 @@ public class Main extends JFrame
             
             layout.setVerticalGroup(
                     layout.createParallelGroup()
-                        .addComponent(listaPlikow, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(listaPrzewijana, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(
                         layout.createSequentialGroup()
                                 .addComponent(bAdd)
@@ -92,7 +113,7 @@ public class Main extends JFrame
         public void actionPerformed(ActionEvent e) 
         {
             if (e.getActionCommand().equals("Dodaj"))
-                System.out.println("Dodawanie");
+                dodajWpisyDoArchiwum();
             else if (e.getActionCommand().equals("Usuń"))
                 System.out.println("Usuwanie");
             else if (e.getActionCommand().equals("Zip"))
@@ -101,6 +122,33 @@ public class Main extends JFrame
         
     }
 
+    private void dodajWpisyDoArchiwum()
+    {
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        fileChooser.setMultiSelectionEnabled(true);
+        
+        int tmp = fileChooser.showDialog(rootPane,"Dodaj do archiwum"); 
+        if (tmp == JFileChooser.APPROVE_OPTION)
+            {
+                File[] filesToArchive = fileChooser.getSelectedFiles();
+                for(int i = 0; i < filesToArchive.length;i++)
+                    if (!czyWpisSiePowtarza(filesToArchive[i].getPath()))
+                        modelListy.addElement(filesToArchive[i]);
+            }
+            
+    }
+    
+    private boolean czyWpisSiePowtarza(String testowanyWpis)
+    {
+        for (int i = 0; i < modelListy.getSize(); i++)
+        {
+            if ( ((File)modelListy.get(i)).getPath().equals(testowanyWpis))
+            return true;
+        }
+        return false;
+    }
+    
     
     public static void main(String[] args) 
     {
